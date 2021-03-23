@@ -30,17 +30,19 @@ const { PerformanceObserver, performance } = require('perf_hooks');
 			performance.mark(`begin request ${index}`);
 		}	
 		let data = '';
+		let statusCode = 0;
 
 		req.on('response', (headers, flags) => {
+			if (':status' in headers) {
+				statusCode = headers[':status'];
+			}
 			if (verbosity > 1) {
 				console.log(`begin request ${index} headers`);
 				for (const name in headers) {
 					console.log(`  ${name}: ${headers[name]}`);
 				}
 				console.log(`end request ${index} headers`);
-			} else if (verbosity > 0) {
-				console.log(`request ${index} status: ${headers[':status']}`);
-			}
+			}	
 		});
 
 		req.on('data', (chunk) => {
@@ -48,9 +50,18 @@ const { PerformanceObserver, performance } = require('perf_hooks');
 		});
 
 		req.on('end', () => {
-			if (verbosity > 3) {
+			// If verbosity is greater than 1, we already output all the headers, including this one
+			if (verbosity === 1) {
+				console.log(`request ${index} status: ${statusCode}`);
+			}
+			
+			// Output the whole body if we're being very verbose, or if we're only being
+			// a little verbose but an error occurred.
+			if (verbosity > 3 ||
+				(verbosity > 0 && (statusCode < 200 || statusCode > 299))) {
 				console.log(data);
-			} 
+			}
+
 			if (verbosity > 0) {
 				performance.mark(`end request ${index}`);
 				performance.measure(`request ${index} time`, `begin request ${index}`, `end request ${index}`);

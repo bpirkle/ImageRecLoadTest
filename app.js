@@ -2,8 +2,8 @@ const imageRecLoadTest = require( './imageRecLoadTest' );
 const { PerformanceObserver, performance } = require('perf_hooks');
 
 const verbosity = 1; // larger values = more verbose output
-const numRequestsToMake = 100;
-const numPagesPerRequest = 100;
+const numRequestsToMake = 1;
+const numPagesPerRequest = 1500;
 
 const perfObserver = new PerformanceObserver((items) => {
     items.getEntries().forEach((entry) => {
