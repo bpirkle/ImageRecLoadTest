@@ -10,12 +10,17 @@ const { PerformanceObserver, performance } = require('perf_hooks');
  * @param {integer} index unique request index for this invocation of the app
  * @param {integer} numPagesPerRequest
  * @param {integer} verbosity larger values = more verbose output
+ * @param {string} params additional parameters to include with request
  * @return {Promise} promise resolving to the request response
  */
- function doMakeRequest(index, numPagesPerRequest, verbosity) {
+ function doMakeRequest(index, numPagesPerRequest, verbosity, params) {
+	let path = '/image-suggestions/v0/wikipedia/ar/pages?limit=' + numPagesPerRequest;
+	if (params) {
+		path += '&' + params;
+	}
 	const options = {
 		host: 'https://image-suggestion-api.toolforge.org',
-		path: '/image-suggestions/v0/wikipedia/ar/pages?limit=' + numPagesPerRequest,
+		path: path,
 		userAgent: 'imageRecLoadTest'
 	};
 
@@ -52,7 +57,7 @@ const { PerformanceObserver, performance } = require('perf_hooks');
 		req.on('end', () => {
 			// If verbosity is greater than 1, we already output all the headers, including this one
 			if (verbosity === 1) {
-				console.log(`request ${index} status: ${statusCode}`);
+				console.log(`request ${index} complete, status: ${statusCode}`);
 			}
 			
 			// Output the whole body if we're being very verbose, or if we're only being
@@ -80,13 +85,14 @@ const { PerformanceObserver, performance } = require('perf_hooks');
  * @param {integer} numRequestsToMake 
  * @param {integer} numPagesPerRequest
  * @param {integer} verbosity larger values = more verbose output
+ * @param {string} params additional parameters to include with request
  * @return {Promise} promise resolving as an array of response strings
  */
-function makeRequests(numRequestsToMake, numPagesPerRequest, verbosity) {
+function makeRequests(numRequestsToMake, numPagesPerRequest, verbosity, params) {
 	const promises = [];
 	var i;
 	for (i = 0; i < numRequestsToMake; i++) {
-		promises.push(doMakeRequest(i, numPagesPerRequest, verbosity));
+		promises.push(doMakeRequest(i, numPagesPerRequest, verbosity, params));
 	};
 
 	const results = Promise.all(promises).then((allResults) => {

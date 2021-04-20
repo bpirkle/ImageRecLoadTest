@@ -4,6 +4,7 @@ const { PerformanceObserver, performance } = require('perf_hooks');
 let verbosity = 1; // larger values = more verbose output
 let numRequestsToMake = 5;
 let numPagesPerRequest = 10;
+let params = '';
 
 const perfObserver = new PerformanceObserver((items) => {
     items.getEntries().forEach((entry) => {
@@ -21,13 +22,19 @@ if (process.argv.length >= 4) {
 if (process.argv.length >= 5) {
     verbosity = parseInt(process.argv[4]) || verbosity;
 }
+if (process.argv.length >= 6) {
+    params = process.argv[5];
+}
 
-console.log(`numRequestsToMake: ${numRequestsToMake}, numPagesPerRequest: ${numPagesPerRequest}, verbosity: ${verbosity}`);
+console.log(
+    `numRequestsToMake: ${numRequestsToMake}, numPagesPerRequest: ${numPagesPerRequest}, verbosity: ${verbosity}, params: ${params}`
+);
 
 perfObserver.observe({ entryTypes: ["measure"], buffer: true })
 
 performance.mark('app-start');
-imageRecLoadTest.makeRequests(numRequestsToMake, numPagesPerRequest, verbosity).then((response) => {
+imageRecLoadTest.makeRequests(numRequestsToMake, numPagesPerRequest, verbosity, params)
+.then((response) => {
     performance.mark('app-end');
     if (verbosity > 2) {
         console.log(response);
