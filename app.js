@@ -7,7 +7,7 @@ let numPagesPerRequest = 10;
 
 const perfObserver = new PerformanceObserver((items) => {
     items.getEntries().forEach((entry) => {
-        console.log(`${entry.name}: ${entry.duration} ms`);
+        console.log(`************ ${entry.name}: ${entry.duration} ms ***********`);
     })
 })
 
